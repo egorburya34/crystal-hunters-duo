@@ -664,18 +664,24 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, setGameState, levelI
       } else {
           // Enemy
           const e = entity as Enemy;
-          const { hue, scale, hasArmor, hasHorns, hasEye } = e.visuals;
-          ctx.scale(scale, scale);
-          ctx.fillStyle = entity.color;
-          if (hasArmor) {
-             ctx.fillRect(-15, -15, 30, 30);
-             ctx.fillStyle = `hsl(${hue}, 40%, 60%)`; ctx.fillRect(-10, -10, 20, 20);
+          if (e.visuals) {
+              const { hue, scale, hasArmor } = e.visuals;
+              ctx.scale(scale, scale);
+              ctx.fillStyle = entity.color;
+              if (hasArmor) {
+                 ctx.fillRect(-15, -15, 30, 30);
+                 ctx.fillStyle = `hsl(${hue}, 40%, 60%)`; ctx.fillRect(-10, -10, 20, 20);
+              } else {
+                 ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI*2); ctx.fill();
+              }
+              // Limbs
+              ctx.strokeStyle = entity.color; ctx.lineWidth = 4;
+              ctx.beginPath(); ctx.moveTo(10, 10); ctx.lineTo(20 + animOffset, 20); ctx.moveTo(-10, 10); ctx.lineTo(-20 - animOffset, 20); ctx.stroke();
           } else {
-             ctx.beginPath(); ctx.arc(0, 0, 15, 0, Math.PI*2); ctx.fill();
+              // Fallback for non-enemies (should not happen with correct calls)
+              ctx.fillStyle = entity.color;
+              ctx.beginPath(); ctx.arc(0,0, entity.radius, 0, Math.PI*2); ctx.fill();
           }
-          // Limbs
-          ctx.strokeStyle = entity.color; ctx.lineWidth = 4;
-          ctx.beginPath(); ctx.moveTo(10, 10); ctx.lineTo(20 + animOffset, 20); ctx.moveTo(-10, 10); ctx.lineTo(-20 - animOffset, 20); ctx.stroke();
       }
 
       ctx.restore();
@@ -815,8 +821,12 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, setGameState, levelI
          ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(0, 10, 20, 10, 0, 0, Math.PI*2); ctx.fill();
          ctx.fillStyle = '#c2410c'; ctx.fillRect(-15, -15, 30, 30);
          ctx.fillStyle = '#fdba74'; ctx.fillRect(-12, -12, 24, 6);
+         
+         // HP Bar for Crate
+         ctx.fillStyle = 'black'; ctx.fillRect(-20, -35, 40, 6);
+         ctx.fillStyle = '#f97316'; ctx.fillRect(-20, -35, 40 * (c.hp / c.maxHp), 6);
+         
          ctx.restore();
-         drawHumanoid(ctx, c, false);
     }}));
     
     // Pickups
